@@ -78,6 +78,13 @@ def sync_images():
             else:
                print(f"failed to download {image_url}: {response.status_code}")
 
+    remote_image_basenames = [os.path.basename(u) for u in remote_image_urls]
+
+    for local_basename in os.listdir(cache_directory):
+        if not local_basename in remote_image_basenames:
+            print(f"removing file {local_basename}")
+            os.remove(cache_directory + '/' + local_basename)
+
 
 def random_image():
     cache_directory = config["cache_directory"]
