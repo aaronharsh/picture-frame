@@ -46,7 +46,7 @@ while mainLoop:
     if event.type in [pygame.NOEVENT, pygame.KEYUP]:
         show_random_image()
 
-    if event.type in [pygame.QUIT, pygame.MOUSEBUTTONUP]:
+    if event.type in [pygame.QUIT, pygame.MOUSEBUTTONUP, pygame.FINGERUP]:
         mainLoop = False
 
     pygame.display.update()
