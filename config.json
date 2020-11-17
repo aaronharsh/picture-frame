@@ -2,7 +2,7 @@
     "image_base_url": "https://harsh-photo-albums.s3-us-west-2.amazonaws.com/audrey",
     "cache_directory": "cache",
     "refresh_pictures_time_seconds": 10,
-    "resolution_x": 800,
-    "resolution_y": 480,
-    "gamma": 0.5
+    "resolution_x": 1024,
+    "resolution_y": 600,
+    "gamma": 0.75
 }
