@@ -51,39 +51,42 @@ def resize_image(content):
 
 
 def sync_images():
-    cache_directory = config["cache_directory"]
-    if not os.path.exists(cache_directory):
-        try:
-            os.mkdir(cache_directory)
-        except Exception as e:
-            print(f"couldn't create {cache_directory}: e")
+    try:
+        cache_directory = config["cache_directory"]
+        if not os.path.exists(cache_directory):
+            try:
+                os.mkdir(cache_directory)
+            except Exception as e:
+                print(f"couldn't create {cache_directory}: e")
+                return
+
+        remote_image_urls = get_remote_image_urls()
+        if not remote_image_urls:
+            print(f"no remote image urls.  not syncing")
             return
 
-    remote_image_urls = get_remote_image_urls()
-    if not remote_image_urls:
-        print(f"no remote image urls.  not syncing")
-        return
-
-    for image_url in remote_image_urls:
-        image_basename = os.path.basename(image_url)
-        local_path = cache_directory + "/" + image_basename
-        if os.path.exists(local_path):
-            print(f"{local_path} already exists - not downloading {image_url}")
-        else:
-            print(f"{local_path} doesn't exist - downloading {image_url}")
-            response = requests.get(image_url)
-            if response.status_code == 200:
-                image = resize_image(response.content)
-                pygame.image.save(image, local_path)
+        for image_url in remote_image_urls:
+            image_basename = os.path.basename(image_url)
+            local_path = cache_directory + "/" + image_basename
+            if os.path.exists(local_path):
+                print(f"{local_path} already exists - not downloading {image_url}")
             else:
-               print(f"failed to download {image_url}: {response.status_code}")
+                print(f"{local_path} doesn't exist - downloading {image_url}")
+                response = requests.get(image_url)
+                if response.status_code == 200:
+                    image = resize_image(response.content)
+                    pygame.image.save(image, local_path)
+                else:
+                   print(f"failed to download {image_url}: {response.status_code}")
 
-    remote_image_basenames = [os.path.basename(u) for u in remote_image_urls]
+        remote_image_basenames = [os.path.basename(u) for u in remote_image_urls]
 
-    for local_basename in os.listdir(cache_directory):
-        if not local_basename in remote_image_basenames:
-            print(f"removing file {local_basename}")
-            os.remove(cache_directory + '/' + local_basename)
+        for local_basename in os.listdir(cache_directory):
+            if not local_basename in remote_image_basenames:
+                print(f"removing file {local_basename}")
+                os.remove(cache_directory + '/' + local_basename)
+    except Exception as e:
+        print(f"error syncing images: {e}")
 
 
 def random_image():
