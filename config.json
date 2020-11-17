@@ -3,5 +3,6 @@
     "cache_directory": "cache",
     "refresh_pictures_time_seconds": 10,
     "resolution_x": 800,
-    "resolution_y": 480
+    "resolution_y": 480,
+    "gamma": 0.5
 }
