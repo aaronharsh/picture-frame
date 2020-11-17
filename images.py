@@ -5,8 +5,11 @@ import pygame
 import random
 import requests
 import sys
+import tempfile
 
 from config import config
+
+cache_directory = config["cache_directory"]
 
 
 def get_remote_manifest(base_url):
@@ -35,8 +38,21 @@ def get_remote_image_urls():
     return image_urls
 
 
-def resize_image(content):
-    original_image = pygame.image.load(io.BytesIO(content))
+def fetch_image(image_url):
+    response = requests.get(image_url)
+    if response.status_code == 200:
+        # Preserve the suffix on the file, to avoid confusing pygame
+        _, suffix = os.path.splitext(image_url)
+        _, local_path = tempfile.mkstemp(suffix=suffix)
+        with open(local_path, "wb") as f:
+            f.write(response.content)
+        return local_path
+    else:
+       print(f"failed to download {image_url}: {response.status_code}")
+
+
+def resize_image(original_path, resized_path):
+    original_image = pygame.image.load(original_path)
     original_size = original_image.get_size()
     screen_size = (config["resolution_x"], config["resolution_y"])
 
@@ -46,13 +62,26 @@ def resize_image(content):
     ratio = min([x_ratio, y_ratio])
 
     new_size = (round(original_size[0] * ratio), round(original_size[1] * ratio))
+    resized = pygame.transform.smoothscale(original_image, new_size)
 
-    return pygame.transform.smoothscale(original_image, new_size)
+    pygame.image.save(resized, resized_path)
+
+
+def fetch_and_resize_image(image_url):
+    image_basename = os.path.basename(image_url)
+
+    local_path = cache_directory + "/" + image_basename
+
+    if os.path.exists(local_path):
+        print(f"{local_path} already exists - not downloading {image_url}")
+    else:
+        unresized_path = fetch_image(image_url)
+        resize_image(unresized_path, local_path)
+        os.unlink(unresized_path)
 
 
 def sync_images():
     try:
-        cache_directory = config["cache_directory"]
         if not os.path.exists(cache_directory):
             try:
                 os.mkdir(cache_directory)
@@ -66,18 +95,7 @@ def sync_images():
             return
 
         for image_url in remote_image_urls:
-            image_basename = os.path.basename(image_url)
-            local_path = cache_directory + "/" + image_basename
-            if os.path.exists(local_path):
-                print(f"{local_path} already exists - not downloading {image_url}")
-            else:
-                print(f"{local_path} doesn't exist - downloading {image_url}")
-                response = requests.get(image_url)
-                if response.status_code == 200:
-                    image = resize_image(response.content)
-                    pygame.image.save(image, local_path)
-                else:
-                   print(f"failed to download {image_url}: {response.status_code}")
+            fetch_and_resize_image(image_url)
 
         remote_image_basenames = [os.path.basename(u) for u in remote_image_urls]
 
@@ -90,7 +108,6 @@ def sync_images():
 
 
 def random_image():
-    cache_directory = config["cache_directory"]
     files = os.listdir(cache_directory)
     if not files:
         return None
