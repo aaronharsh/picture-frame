@@ -40,13 +40,11 @@ while mainLoop:
 
     print(f"event = {event}")
 
-    if event.type == pygame.NOEVENT:
+    if event.type in [pygame.NOEVENT, pygame.MOUSEBUTTONUP, pygame.FINGERUP]:
         images.sync_images()
-
-    if event.type in [pygame.NOEVENT, pygame.KEYUP]:
         show_random_image()
 
-    if event.type in [pygame.QUIT, pygame.MOUSEBUTTONUP, pygame.FINGERUP]:
+    if event.type in [pygame.QUIT, pygame.KEYUP]:
         mainLoop = False
 
     pygame.display.update()
