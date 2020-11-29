@@ -1,0 +1,35 @@
+#!/bin/env python
+
+import os
+import time
+
+from subprocess import call
+from datetime import datetime, timedelta
+
+os.chdir('/home/pi/picture-frame')
+
+while True:
+    start = datetime.now()
+    next_3am = datetime(start.year, start.month, start.day) + timedelta(days=1, hours=3)
+
+    call(["git", "pull"])
+    exit_code = call(['start_frame', '--end-after', next_3am.strftime('%Y-%m-%d %H:%M:%S')])
+
+    if exit_code == 2:
+        # user asked that we quit
+        break
+
+    # the program could have quit for a couple
+    # reasons:
+    # - it could have reached the --end-after
+    #   date.  in that case, restart immediately
+    # - the subprocess could have failed.  maybe
+    #   the latest version of the code, downloaded
+    #   from github, is broken
+    #
+    # either way, we want to resume the whole
+    # git pull/run process. wait at least an hour
+    # between runs, though, so wait until the
+    # next hour before doing anything
+    duration = datetime.now() - start
+    time.sleep(max([0, 3600 - duration.total_seconds()]))

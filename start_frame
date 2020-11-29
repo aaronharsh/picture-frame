@@ -1,0 +1,6 @@
+#!/bin/bash
+
+(
+    source .venv/bin/activate
+    python run.py
+) &> /tmp/picture-frame.log
