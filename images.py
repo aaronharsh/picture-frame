@@ -94,7 +94,7 @@ def fetch_and_prepare_image(image_url):
         os.unlink(original_path)
 
 
-def sync_images():
+def sync_images_from_s3_to_cache():
     try:
         if not os.path.exists(cache_directory):
             try:
@@ -121,7 +121,7 @@ def sync_images():
         print(f"error syncing images: {e}")
 
 
-def random_image():
+def random_image_from_cache():
     files = os.listdir(cache_directory)
     if not files:
         return None

@@ -2,5 +2,5 @@
 
 (
     source .venv/bin/activate
-    python frame.py
+    python frame.py "$@"
 ) &> /tmp/picture-frame.log

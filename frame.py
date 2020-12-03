@@ -12,8 +12,8 @@ RESOLUTION_X = config["resolution_x"]
 RESOLUTION_Y = config["resolution_y"]
 
 
-def show_random_image():
-    image = images.random_image()
+def show_random_image_from_s3_cache(displaysurf):
+    image = images.random_image_from_cache()
 
     image_size = image.get_size()
 
@@ -21,32 +21,38 @@ def show_random_image():
     top = round((RESOLUTION_Y - image_size[1]) / 2)
 
     if image:
-        DISPLAYSURF.fill(BLACK)
-        DISPLAYSURF.blit(image, (left, top))
+        displaysurf.fill(BLACK)
+        displaysurf.blit(image, (left, top))
         pygame.display.update()
 
-images.sync_images()
 
-pygame.init()
-DISPLAYSURF = pygame.display.set_mode((RESOLUTION_X, RESOLUTION_Y), pygame.FULLSCREEN)
-pygame.mouse.set_visible(False)
+def main():
+    images.sync_images_from_s3_to_cache()
 
-show_random_image()
+    pygame.init()
+    displaysurf = pygame.display.set_mode((RESOLUTION_X, RESOLUTION_Y), pygame.FULLSCREEN)
+    pygame.mouse.set_visible(False)
 
-mainLoop = True
+    show_random_image_from_s3_cache(displaysurf)
 
-while mainLoop:
-    event = pygame.event.wait(config["refresh_pictures_time_seconds"] * 1000)
+    mainLoop = True
 
-    print(f"event = {event}")
+    while mainLoop:
+        event = pygame.event.wait(config["refresh_pictures_time_seconds"] * 1000)
 
-    if event.type in [pygame.NOEVENT, pygame.MOUSEBUTTONUP, pygame.FINGERUP]:
-        images.sync_images()
-        show_random_image()
+        print(f"event = {event}")
 
-    if event.type in [pygame.QUIT, pygame.KEYUP]:
-        mainLoop = False
+        if event.type in [pygame.NOEVENT, pygame.MOUSEBUTTONUP, pygame.FINGERUP]:
+            images.sync_images_from_s3_to_cache()
+            show_random_image_from_s3_cache(displaysurf)
 
-    pygame.display.update()
+        if event.type in [pygame.QUIT, pygame.KEYUP]:
+            mainLoop = False
 
-pygame.quit()
+        pygame.display.update()
+
+    pygame.quit()
+
+
+if __name__ == "__main__":
+    main()

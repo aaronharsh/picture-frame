@@ -1,4 +1,4 @@
 [Desktop Entry]
 Type=Application
 Name=PictureFrame
-Exec=/home/pi/start_frame
+Exec=/home/pi/start_frame /home/pi
