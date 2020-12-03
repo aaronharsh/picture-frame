@@ -27,13 +27,13 @@ def get_response(endpoint, auth):
 
 
 def get_top_image_urls(subreddit, auth):
-    response = get_response(f"https://oauth.reddit.com{subreddit}/top/?t=day", auth)
+    response = get_response(f"https://oauth.reddit.com{subreddit}/top/?t=week", auth)
     
     image_urls = []
 
     for child in response["data"]["children"]:
         url = child["data"].get("url")
         if url and ".jpg" in url:
-            image_urls.append(url))
+            image_urls.append(url)
 
     return image_urls

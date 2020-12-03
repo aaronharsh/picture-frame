@@ -1,4 +1,4 @@
 [Desktop Entry]
 Type=Application
 Name=PictureFrame
-Exec=/home/pi/start_frame /home/pi
+Exec=/home/pi/start_frame /home/pi/reddit_auth.json

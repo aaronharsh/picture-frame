@@ -93,6 +93,8 @@ def fetch_and_prepare_image(image_url):
         pygame.image.save(image, local_path)
         os.unlink(original_path)
 
+    return local_path
+
 
 def sync_images_from_s3_to_cache():
     try:
