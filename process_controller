@@ -1,12 +1,20 @@
 #!/bin/env python
 
 import os
+import sys
 import time
 
 from subprocess import call
 from datetime import datetime, timedelta
 
-os.chdir('/home/pi/picture-frame')
+
+if len(sys.argv) != 2:
+    print("usage: process_controller <working-directory>", file=sys.stderr)
+    sys.exit(1)
+
+working_directory = sys.argv[1]
+
+os.chdir(working_directory)
 
 while True:
     start = datetime.now()
