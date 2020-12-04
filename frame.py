@@ -57,9 +57,9 @@ def main():
 
     choose_and_show_image(displaysurf)
 
-    mainLoop = True
+    keep_running = True
 
-    while mainLoop:
+    while keep_running:
         event = pygame.event.wait(config["refresh_pictures_time_seconds"] * 1000)
 
         print(f"event = {event}")
@@ -68,7 +68,7 @@ def main():
             choose_and_show_image(displaysurf)
 
         if event.type in [pygame.QUIT, pygame.KEYUP]:
-            mainLoop = False
+            keep_running = False
 
         pygame.display.update()
 
