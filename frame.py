@@ -65,7 +65,7 @@ def main():
     auth_file = args.auth_file
 
     start = datetime.now()
-    end_after = datetime(start.year, start.month, start.day) + timedelta(days=1, hours=3)
+    end_after = start + timedelta(minutes=5)
 
     exit_code = 0
 
