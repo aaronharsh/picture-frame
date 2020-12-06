@@ -55,7 +55,8 @@ def show_popular_reddit_image(displaysurf, subreddit, auth_file):
 
 def choose_and_show_image(displaysurf, auth_file):
     # show_random_image_from_s3_cache(displaysurf)
-    show_popular_reddit_image(displaysurf, "/r/astronomy+astrophotography", auth_file)
+    # show_popular_reddit_image(displaysurf, "/r/astronomy+astrophotography", auth_file)
+    show_popular_reddit_image(displaysurf, "/r/aww", auth_file)
 
 
 def main():
