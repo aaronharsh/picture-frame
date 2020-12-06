@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-import pygame, sys
+import argparse
+from datetime import datetime
+import sys
+
+import pygame
 from pygame.locals import *
 
 import images
@@ -31,8 +35,7 @@ def show_random_image_from_s3_cache(displaysurf):
 
 
 
-def show_popular_reddit_image(displaysurf, subreddit):
-    auth_file = sys.argv[1]
+def show_popular_reddit_image(displaysurf, subreddit, auth_file):
     auth = reddit.get_auth(auth_file)
     urls = reddit.get_top_image_urls(subreddit, auth)
 
@@ -45,34 +48,49 @@ def show_popular_reddit_image(displaysurf, subreddit):
         show_image(displaysurf, image)
 
 
-def choose_and_show_image(displaysurf):
+def choose_and_show_image(displaysurf, auth_file):
     # show_random_image_from_s3_cache(displaysurf)
-    show_popular_reddit_image(displaysurf, "/r/astronomy+astrophotography")
+    show_popular_reddit_image(displaysurf, "/r/astronomy+astrophotography", auth_file)
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Show rotating list of pictures")
+    parser.add_argument("--end-after", type=str, required=True)
+    parser.add_argument("--auth-file", type=str, required=True)
+    args = parser.parse_args()
+
+    end_after = datetime.strptime(args.end_after, '%Y-%m-%d %H:%M:%S')
+    auth_file = args.auth_file
+
+
+    exit_code = 0
+
     pygame.init()
     displaysurf = pygame.display.set_mode((RESOLUTION_X, RESOLUTION_Y), pygame.FULLSCREEN)
     pygame.mouse.set_visible(False)
 
-    choose_and_show_image(displaysurf)
+    choose_and_show_image(displaysurf, auth_file)
 
-    keep_running = True
-
-    while keep_running:
+    while True:
         event = pygame.event.wait(config["refresh_pictures_time_seconds"] * 1000)
 
         print(f"event = {event}")
 
-        if event.type in [pygame.NOEVENT, pygame.MOUSEBUTTONUP, pygame.FINGERUP]:
-            choose_and_show_image(displaysurf)
+        if event.type in [pygame.NOEVENT, pygame.QUIT, pygame.KEYUP]:
+            choose_and_show_image(displaysurf, auth_file)
 
-        if event.type in [pygame.QUIT, pygame.KEYUP]:
-            keep_running = False
+        if event.type in [pygame.MOUSEBUTTONUP, pygame.FINGERUP]:
+            exit_code = 2
+            break
+
+        if datetime.now() > end_after:
+            break
 
         pygame.display.update()
 
     pygame.quit()
+
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":

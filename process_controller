@@ -1,5 +1,6 @@
-#!/bin/env python
+#!/usr/bin/env python3
 
+import logging
 import os
 import sys
 import time
@@ -7,12 +8,14 @@ import time
 from subprocess import call
 from datetime import datetime, timedelta
 
+logging.basicConfig(level=logging.INFO)
 
-if len(sys.argv) != 2:
-    print("usage: process_controller <working-directory>", file=sys.stderr)
+if len(sys.argv) != 3:
+    print("usage: process_controller <working-directory> <auth-file>", file=sys.stderr)
     sys.exit(1)
 
 working_directory = sys.argv[1]
+auth_file = sys.argv[2]
 
 os.chdir(working_directory)
 
@@ -21,8 +24,11 @@ while True:
     next_3am = datetime(start.year, start.month, start.day) + timedelta(days=1, hours=3)
 
     call(["git", "pull"])
-    exit_code = call(['start_frame', '--end-after', next_3am.strftime('%Y-%m-%d %H:%M:%S')])
+    command_line = ['./start_frame', '--end-after', next_3am.strftime('%Y-%m-%d %H:%M:%S'), '--auth-file', auth_file]
+    logging.info(f"Running command: {command_line}")
+    exit_code = call(command_line)
 
+    logging.info(f"Exited with code {exit_code}")
     if exit_code == 2:
         # user asked that we quit
         break
