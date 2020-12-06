@@ -76,6 +76,8 @@ def main():
 
     choose_and_show_image(displaysurf, auth_file)
 
+    last_click_times = []
+
     while True:
         event = pygame.event.wait(config["refresh_pictures_time_seconds"] * 1000)
 
@@ -85,8 +87,11 @@ def main():
             choose_and_show_image(displaysurf, auth_file)
 
         if event.type in [pygame.MOUSEBUTTONUP, pygame.FINGERUP]:
-            exit_code = 2
-            break
+            last_click_times.append(datetime.now())
+            last_click_times = last_click_times[-5:]
+            if len(last_click_times) >= 5 and last_click_times[0] + timedelta(seconds=10) >= last_click_times[-1]:
+                exit_code = 2
+                break
 
         if datetime.now() > end_after:
             break
