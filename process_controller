@@ -2,6 +2,7 @@
 
 import logging
 import os
+import requests
 import sys
 import time
 
@@ -18,6 +19,22 @@ working_directory = sys.argv[1]
 auth_file = sys.argv[2]
 
 os.chdir(working_directory)
+
+# This script gets called during startup.  Network services
+# might not be completely ready.  So wait until the network
+# is ready before continuing
+while True:
+    response = None
+    try:
+        response = requests.get('https://www.google.com')
+    except Exception as e:
+        logging.info(f"Couldn't connect to some random site: {e}")
+        time.sleep(2)
+        pass
+
+    if response:
+        logging.info("Internet connection working.  Continuing")
+        break
 
 while True:
     call(["git", "pull"])
