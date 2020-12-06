@@ -6,7 +6,7 @@ import sys
 import time
 
 from subprocess import call
-from datetime import datetime, timedelta
+from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
 
@@ -20,11 +20,10 @@ auth_file = sys.argv[2]
 os.chdir(working_directory)
 
 while True:
-    start = datetime.now()
-    next_3am = datetime(start.year, start.month, start.day) + timedelta(days=1, hours=3)
-
     call(["git", "pull"])
-    command_line = ['./start_frame', '--end-after', next_3am.strftime('%Y-%m-%d %H:%M:%S'), '--auth-file', auth_file]
+
+    start = datetime.now()
+    command_line = ['./start_frame', '--auth-file', auth_file]
     logging.info(f"Running command: {command_line}")
     exit_code = call(command_line)
 

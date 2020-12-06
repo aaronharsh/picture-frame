@@ -2,7 +2,7 @@
 
 import argparse
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 import sys
 
 import pygame
@@ -60,13 +60,12 @@ def choose_and_show_image(displaysurf, auth_file):
 
 def main():
     parser = argparse.ArgumentParser(description="Show rotating list of pictures")
-    parser.add_argument("--end-after", type=str, required=True)
     parser.add_argument("--auth-file", type=str, required=True)
     args = parser.parse_args()
-
-    end_after = datetime.strptime(args.end_after, '%Y-%m-%d %H:%M:%S')
     auth_file = args.auth_file
 
+    start = datetime.now()
+    end_after = datetime(start.year, start.month, start.day) + timedelta(days=1, hours=3)
 
     exit_code = 0
 
