@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+import logging
 from datetime import datetime
 import sys
 
@@ -16,6 +17,10 @@ BLACK = (0, 0, 0)
 RESOLUTION_X = config["resolution_x"]
 RESOLUTION_Y = config["resolution_y"]
 
+logging.basicConfig(
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S')
 
 def show_image(displaysurf, image):
     image_size = image.get_size()
@@ -41,9 +46,9 @@ def show_popular_reddit_image(displaysurf, subreddit, auth_file):
 
     if urls:
         url = urls[0]
-        print(f"fetching {url}")
+        logging.info(f"fetching {url}")
         local_file = images.fetch_and_prepare_image(url)
-        print(f" copied to {local_file}")
+        logging.info(f" copied to {local_file}")
         image = pygame.image.load(local_file)
         show_image(displaysurf, image)
 
@@ -74,7 +79,7 @@ def main():
     while True:
         event = pygame.event.wait(config["refresh_pictures_time_seconds"] * 1000)
 
-        print(f"event = {event}")
+        logging.info(f"event = {event}")
 
         if event.type in [pygame.NOEVENT, pygame.QUIT, pygame.KEYUP]:
             choose_and_show_image(displaysurf, auth_file)

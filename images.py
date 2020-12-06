@@ -1,5 +1,6 @@
 import io
 import json
+import logging
 import os
 import pygame
 import random
@@ -51,7 +52,7 @@ def fetch_image(image_url):
             f.write(response.content)
         return local_path
     else:
-       print(f"failed to download {image_url}: {response.status_code}")
+       logging.info(f"failed to download {image_url}: {response.status_code}")
 
 
 def gamma_correct(image):
@@ -83,7 +84,7 @@ def fetch_and_prepare_image(image_url):
     local_path = cache_directory + "/" + image_basename
 
     if os.path.exists(local_path):
-        print(f"{local_path} already exists - not downloading {image_url}")
+        logging.info(f"{local_path} already exists - not downloading {image_url}")
     else:
         original_path = fetch_image(image_url)
         image = pygame.image.load(original_path)
@@ -102,12 +103,12 @@ def sync_images_from_s3_to_cache():
             try:
                 os.mkdir(cache_directory)
             except Exception as e:
-                print(f"couldn't create {cache_directory}: e")
+                logging.info(f"couldn't create {cache_directory}: e")
                 return
 
         remote_image_urls = get_remote_image_urls()
         if not remote_image_urls:
-            print(f"no remote image urls.  not syncing")
+            logging.info(f"no remote image urls.  not syncing")
             return
 
         for image_url in remote_image_urls:
@@ -117,10 +118,10 @@ def sync_images_from_s3_to_cache():
 
         for local_basename in os.listdir(cache_directory):
             if not local_basename in remote_image_basenames:
-                print(f"removing file {local_basename}")
+                logging.info(f"removing file {local_basename}")
                 os.remove(cache_directory + '/' + local_basename)
     except Exception as e:
-        print(f"error syncing images: {e}")
+        logging.info(f"error syncing images: {e}")
 
 
 def random_image_from_cache():
