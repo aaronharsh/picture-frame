@@ -17,6 +17,9 @@ BLACK = (0, 0, 0)
 RESOLUTION_X = config["resolution_x"]
 RESOLUTION_Y = config["resolution_y"]
 
+OFFSET_X = config["offset_x"]
+OFFSET_Y = config["offset_y"]
+
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
     level=logging.INFO,
@@ -25,8 +28,8 @@ logging.basicConfig(
 def show_image(displaysurf, image):
     image_size = image.get_size()
 
-    left = round((RESOLUTION_X - image_size[0]) / 2)
-    top = round((RESOLUTION_Y - image_size[1]) / 2)
+    left = round((RESOLUTION_X - image_size[0]) / 2) + OFFSET_X
+    top = round((RESOLUTION_Y - image_size[1]) / 2) + OFFSET_Y
 
     displaysurf.fill(BLACK)
     displaysurf.blit(image, (left, top))
