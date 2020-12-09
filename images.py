@@ -67,6 +67,10 @@ def gamma_correct(image):
 
 def resize_image(image):
     original_size = image.get_size()
+    if original_size[0] < original_size[1]:
+        image = pygame.transform.rotate(image, 90)
+        original_size = image.get_size()
+
     screen_size = (config["resolution_x"], config["resolution_y"])
 
     x_ratio = screen_size[0] / original_size[0]
