@@ -56,9 +56,27 @@ def show_popular_reddit_image(displaysurf, subreddit, auth_file):
         show_image(displaysurf, image)
 
 
+def subreddit_for_day_of_week():
+    now = datetime.now()
+    if now.weekday() == 0:
+        return "/r/AbandonedPorn"
+    elif now.weekday() == 1:
+        return "/r/travel"
+    elif now.weekday() == 2:
+        return "/r/AccidentalWesAnderson"
+    elif now.weekday() == 3:
+        return "/r/CampingandHiking+WildCampingAndHiking+camping+socalhiking"
+    elif now.weekday() == 4:
+        return "/r/EverythingFoxes+fennecfoxes+foxes"
+    elif now.weekday() == 5:
+        return "/r/Graffiti+streetart"
+    elif now.weekday() == 6:
+        return "/r/Eyebleach"
+
 def choose_and_show_image(displaysurf, auth_file):
+
     # show_random_image_from_s3_cache(displaysurf)
-    show_popular_reddit_image(displaysurf, "/r/astronomy+astrophotography", auth_file)
+    show_popular_reddit_image(displaysurf, subreddit_for_day_of_week(), auth_file)
 
 
 def main():
