@@ -26,8 +26,8 @@ def get_response(endpoint, auth):
     return response.json()
 
 
-def get_top_image_urls(subreddit, auth):
-    response = get_response(f"https://oauth.reddit.com{subreddit}/top/?t=day", auth)
+def get_top_image_urls(subreddit, auth, time_period='day'):
+    response = get_response(f"https://oauth.reddit.com{subreddit}/top/?t={time_period}", auth)
     
     image_urls = []
 
