@@ -27,7 +27,7 @@ def get_response(endpoint, auth):
 
 
 def get_top_image_urls(subreddit, auth):
-    response = get_response(f"https://oauth.reddit.com{subreddit}/top/?t=week", auth)
+    response = get_response(f"https://oauth.reddit.com{subreddit}/top/?t=day", auth)
     
     image_urls = []
 
