@@ -32,11 +32,9 @@ def is_horizontal(reddit_data):
         return False
 
     source = images[0]["source"]
-    print(f"images = {images}; source = {source}")
     width = source["width"]
     height = source["height"]
 
-    print(f"checking if image is horizontal.  width = {width}, height = {height}")
     return width >= height
 
 

@@ -43,9 +43,9 @@ def show_random_image_from_s3_cache(displaysurf):
 
 
 
-def show_popular_reddit_image(displaysurf, subreddit, auth_file):
+def show_popular_reddit_image(displaysurf, subreddit, auth_file, only_horizontal=False):
     auth = reddit.get_auth(auth_file)
-    urls = reddit.get_top_image_urls(subreddit, auth, time_period='day')
+    urls = reddit.get_top_image_urls(subreddit, auth, time_period='day', only_horizontal=only_horizontal)
 
     if urls:
         url = urls[0]
@@ -61,7 +61,7 @@ def subreddit_for_day_of_week():
     if now.weekday() == 0:
         return "/r/AbandonedPorn"
     elif now.weekday() == 1:
-        return "/r/travel"
+        return "/r/Portland+cedarrapids+OregonCoast+Iowa"
     elif now.weekday() == 2:
         return "/r/AccidentalWesAnderson"
     elif now.weekday() == 3:
@@ -74,9 +74,8 @@ def subreddit_for_day_of_week():
         return "/r/Eyebleach"
 
 def choose_and_show_image(displaysurf, auth_file):
-
     # show_random_image_from_s3_cache(displaysurf)
-    show_popular_reddit_image(displaysurf, subreddit_for_day_of_week(), auth_file)
+    show_popular_reddit_image(displaysurf, subreddit_for_day_of_week(), auth_file, only_horizontal=True)
 
 
 def main():
