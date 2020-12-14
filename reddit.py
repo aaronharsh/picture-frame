@@ -26,14 +26,30 @@ def get_response(endpoint, auth):
     return response.json()
 
 
-def get_top_image_urls(subreddit, auth, time_period='day'):
+def is_horizontal(reddit_data):
+    images = reddit_data.get("preview", {}).get("images")
+    if not images:
+        return False
+
+    source = images[0]["source"]
+    print(f"images = {images}; source = {source}")
+    width = source["width"]
+    height = source["height"]
+
+    print(f"checking if image is horizontal.  width = {width}, height = {height}")
+    return width >= height
+
+
+def get_top_image_urls(subreddit, auth, time_period='day', only_horizontal=False):
     response = get_response(f"https://oauth.reddit.com{subreddit}/top/?t={time_period}", auth)
-    
+
     image_urls = []
 
     for child in response["data"]["children"]:
-        url = child["data"].get("url")
+        data = child["data"]
+        url = data.get("url")
         if url and ".jpg" in url:
-            image_urls.append(url)
+            if is_horizontal(data) or not only_horizontal:
+                image_urls.append(url)
 
     return image_urls
