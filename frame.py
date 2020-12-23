@@ -3,11 +3,13 @@
 import argparse
 import logging
 from datetime import datetime, timedelta
+import random
 import sys
 
 import pygame
 from pygame.locals import *
 
+import dropbox
 import images
 import reddit
 
@@ -20,10 +22,14 @@ RESOLUTION_Y = config["resolution_y"]
 OFFSET_X = config["offset_x"]
 OFFSET_Y = config["offset_y"]
 
+DROPBOX_DIRECTORY = config.get("dropbox_directory")
+
+
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
     level=logging.INFO,
     datefmt='%Y-%m-%d %H:%M:%S')
+
 
 def show_image(displaysurf, image):
     image_size = image.get_size()
@@ -42,6 +48,10 @@ def show_random_image_from_s3_cache(displaysurf):
     show_image(displaysurf, image)
 
 
+def show_local_image(displaysurf, local_file):
+    image = pygame.image.load(local_file)
+    show_image(displaysurf, image)
+
 
 def show_popular_reddit_image(displaysurf, subreddit, auth_file, only_horizontal=False):
     auth = reddit.get_auth(auth_file)
@@ -52,8 +62,7 @@ def show_popular_reddit_image(displaysurf, subreddit, auth_file, only_horizontal
         logging.info(f"fetching {url}")
         local_file = images.fetch_and_prepare_image(url)
         logging.info(f" copied to {local_file}")
-        image = pygame.image.load(local_file)
-        show_image(displaysurf, image)
+        show_local_image(displaysurf, local_file)
 
 
 def subreddit_for_day_of_week():
@@ -73,9 +82,28 @@ def subreddit_for_day_of_week():
     elif now.weekday() == 6:
         return "/r/Eyebleach"
 
+
+def show_dropbox_image(displaysurf, dropbox_filename):
+    local_image = images.fetch_and_prepare_dropbox_image(dropbox_filename, rotate=False)
+    show_local_image(displaysurf, local_image)
+
+
+def get_random_dropbox_filename():
+    if DROPBOX_DIRECTORY:
+        dropbox_filenames = dropbox.get_todays_filenames(DROPBOX_DIRECTORY)
+        if dropbox_filenames:
+            return random.choice(dropbox_filenames)
+    return None
+
+
 def choose_and_show_image(displaysurf, auth_file):
     # show_random_image_from_s3_cache(displaysurf)
-    show_popular_reddit_image(displaysurf, subreddit_for_day_of_week(), auth_file, only_horizontal=True)
+
+    dropbox_filename = get_random_dropbox_filename()
+    if dropbox_filename:
+        show_dropbox_image(displaysurf, dropbox_filename)
+    else:
+        show_popular_reddit_image(displaysurf, subreddit_for_day_of_week(), auth_file, only_horizontal=True)
 
 
 def main():

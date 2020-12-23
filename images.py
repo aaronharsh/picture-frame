@@ -4,10 +4,13 @@ import logging
 import os
 import pygame
 import random
+import re
 import requests
+import subprocess
 import sys
 import tempfile
 
+import dropbox
 from config import config
 
 cache_directory = config["cache_directory"]
@@ -84,6 +87,14 @@ def resize_image(image, rotate):
     return pygame.transform.smoothscale(image, new_size)
 
 
+def prepare_image(original_path, local_path, rotate):
+    image = pygame.image.load(original_path)
+    image = gamma_correct(image)
+    image = resize_image(image, rotate)
+
+    pygame.image.save(image, local_path)
+
+
 def fetch_and_prepare_image(image_url, rotate=False):
     image_basename = os.path.basename(image_url)
 
@@ -93,11 +104,32 @@ def fetch_and_prepare_image(image_url, rotate=False):
         logging.info(f"{local_path} already exists - not downloading {image_url}")
     else:
         original_path = fetch_image(image_url)
-        image = pygame.image.load(original_path)
-        image = gamma_correct(image)
-        image = resize_image(image, rotate)
+        prepare_image(original_path, local_path, rotate)
+        os.unlink(original_path)
 
-        pygame.image.save(image, local_path)
+    return local_path
+
+
+def fetch_dropbox_image(dropbox_filename):
+    # Preserve the suffix on the file, to avoid confusing pygame
+    _, suffix = os.path.splitext(dropbox_filename)
+    _, local_path = tempfile.mkstemp(suffix=suffix)
+
+    dropbox.fetch_image(dropbox_filename, local_path)
+
+    return local_path
+
+
+def fetch_and_prepare_dropbox_image(dropbox_filename, rotate=False):
+    image_basename = os.path.basename(dropbox_filename)
+
+    local_path = cache_directory + "/" + image_basename
+
+    if os.path.exists(local_path):
+        logging.info(f"{local_path} already exists - not downloading {image_url}")
+    else:
+        original_path = fetch_dropbox_image(dropbox_filename)
+        prepare_image(original_path, local_path, rotate)
         os.unlink(original_path)
 
     return local_path
