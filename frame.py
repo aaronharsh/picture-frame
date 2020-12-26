@@ -78,7 +78,7 @@ def subreddit_for_day_of_week():
     elif now.weekday() == 4:
         return "/r/EverythingFoxes+fennecfoxes+foxes"
     elif now.weekday() == 5:
-        return "/r/Graffiti+streetart"
+        return "/r/NatureIsFuckingLit"
     elif now.weekday() == 6:
         return "/r/Eyebleach"
 
