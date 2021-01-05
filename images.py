@@ -56,6 +56,7 @@ def fetch_image(image_url):
         return local_path
     else:
        logging.info(f"failed to download {image_url}: {response.status_code}")
+       return None
 
 
 def gamma_correct(image):
@@ -104,6 +105,9 @@ def fetch_and_prepare_image(image_url, rotate=False):
         logging.info(f"{local_path} already exists - not downloading {image_url}")
     else:
         original_path = fetch_image(image_url)
+        if not original_path:
+            return None
+
         prepare_image(original_path, local_path, rotate)
         os.unlink(original_path)
 

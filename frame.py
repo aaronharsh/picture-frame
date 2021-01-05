@@ -9,7 +9,6 @@ import sys
 import pygame
 from pygame.locals import *
 
-import dropbox
 import images
 import reddit
 
@@ -21,8 +20,6 @@ RESOLUTION_Y = config["resolution_y"]
 
 OFFSET_X = config["offset_x"]
 OFFSET_Y = config["offset_y"]
-
-DROPBOX_DIRECTORY = config.get("dropbox_directory")
 
 
 logging.basicConfig(
@@ -42,15 +39,15 @@ def show_image(displaysurf, image):
     pygame.display.update()
 
 
-def show_random_image_from_s3_cache(displaysurf):
-    images.sync_images_from_s3_to_cache()
-    image = images.random_image_from_cache()
-    show_image(displaysurf, image)
-
-
 def show_local_image(displaysurf, local_file):
     image = pygame.image.load(local_file)
     show_image(displaysurf, image)
+
+
+def get_todays_custom_image():
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    image_url = config.get('image_base_url') + '/' + date_str + '.jpg'
+    return images.fetch_and_prepare_image(image_url)
 
 
 def show_popular_reddit_image(displaysurf, subreddit, auth_file, only_horizontal=False):
@@ -83,25 +80,10 @@ def subreddit_for_day_of_week():
         return "/r/Eyebleach"
 
 
-def show_dropbox_image(displaysurf, dropbox_filename):
-    local_image = images.fetch_and_prepare_dropbox_image(dropbox_filename, rotate=False)
-    show_local_image(displaysurf, local_image)
-
-
-def get_random_dropbox_filename():
-    if DROPBOX_DIRECTORY:
-        dropbox_filenames = dropbox.get_todays_filenames(DROPBOX_DIRECTORY)
-        if dropbox_filenames:
-            return random.choice(dropbox_filenames)
-    return None
-
-
 def choose_and_show_image(displaysurf, auth_file):
-    # show_random_image_from_s3_cache(displaysurf)
-
-    dropbox_filename = get_random_dropbox_filename()
-    if dropbox_filename:
-        show_dropbox_image(displaysurf, dropbox_filename)
+    todays_custom_filename = get_todays_custom_image()
+    if todays_custom_filename:
+        show_local_image(displaysurf, todays_custom_filename)
     else:
         show_popular_reddit_image(displaysurf, subreddit_for_day_of_week(), auth_file, only_horizontal=True)
 
