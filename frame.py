@@ -9,10 +9,12 @@ import sys
 import pygame
 from pygame.locals import *
 
+import errors
 import images
 import reddit
 
 from config import config
+
 
 BLACK = (0, 0, 0)
 RESOLUTION_X = config["resolution_x"]
@@ -26,6 +28,21 @@ logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
     level=logging.INFO,
     datefmt='%Y-%m-%d %H:%M:%S')
+
+
+def report_error(message):
+    logging.error(message)
+    errors.report_error(message)
+
+
+def catch_and_report_errors(category, code):
+    result = None
+    try:
+        result = code()
+    except Exception as e:
+        report_error(f"{category}: {e}")
+
+    return result
 
 
 def show_image(displaysurf, image):
@@ -45,9 +62,13 @@ def show_local_image(displaysurf, local_file):
 
 
 def get_todays_custom_image():
-    date_str = datetime.now().strftime("%Y-%m-%d")
-    image_url = config.get('image_base_url') + '/' + date_str + '.jpg'
-    return images.fetch_and_prepare_image(image_url)
+    try:
+        date_str = datetime.now().strftime("%Y-%m-%d")
+        image_url = config.get('image_base_url') + '/' + date_str + '.jpg'
+        return images.fetch_and_prepare_image(image_url)
+    except Exception as e:
+        report_error(str(e))
+        return None
 
 
 def show_popular_reddit_image(displaysurf, subreddit, auth_file, only_horizontal=False):
@@ -81,11 +102,11 @@ def subreddit_for_day_of_week():
 
 
 def choose_and_show_image(displaysurf, auth_file):
-    todays_custom_filename = get_todays_custom_image()
+    todays_custom_filename = catch_and_report_errors("get_todays_customer_image", get_todays_custom_image)
     if todays_custom_filename:
-        show_local_image(displaysurf, todays_custom_filename)
+        catch_and_report_errors("show_local_image", lambda: show_local_image(displaysurf, todays_custom_filename))
     else:
-        show_popular_reddit_image(displaysurf, subreddit_for_day_of_week(), auth_file, only_horizontal=True)
+        catch_and_report_errors("show_popular_reddit_image", lambda: show_popular_reddit_image(displaysurf, subreddit_for_day_of_week(), auth_file, only_horizontal=True))
 
 
 def main():
@@ -133,4 +154,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    catch_and_report_errors('main', main())
