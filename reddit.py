@@ -26,14 +26,15 @@ def get_response(endpoint, auth):
     return response.json()
 
 
-def get_top_image_urls(subreddit, auth, time_period='day'):
+def get_top_image_urls_and_titles(subreddit, auth, time_period='day'):
     response = get_response(f"https://oauth.reddit.com{subreddit}/top/?t={time_period}", auth)
     
     image_urls = []
 
     for child in response["data"]["children"]:
         url = child["data"].get("url")
+        title = child["data"].get("title")
         if url and ".jpg" in url:
-            image_urls.append(url)
+            image_urls.append((url, title))
 
     return image_urls
