@@ -14,41 +14,18 @@ import reddit
 from config import config
 
 BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
 RESOLUTION_X = config["resolution_x"]
 RESOLUTION_Y = config["resolution_y"]
 
 OFFSET_X = config["offset_x"]
 OFFSET_Y = config["offset_y"]
 
-TEXT_OFFSET_X = config["text_offset_x"]
-TEXT_OFFSET_Y = config["text_offset_y"]
-
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
     level=logging.INFO,
     datefmt='%Y-%m-%d %H:%M:%S')
 
-
-def draw_text(displaysurf, text):
-    font = pygame.font.SysFont(None, 24)
-
-    img_outline = font.render(text, True, BLACK)
-    img_center = font.render(text, True, WHITE)
-
-    img_outline = pygame.transform.rotate(img_outline, 90)
-    img_center = pygame.transform.rotate(img_center, 90)
-
-    (_, img_height) = img_center.get_size()
-
-    for offset_x in [-1, 0, 1]:
-        for offset_y in [-1, 0, 1]:
-            displaysurf.blit(img_outline, (TEXT_OFFSET_X+offset_x, TEXT_OFFSET_Y+offset_y-img_height))
-
-    displaysurf.blit(img_center, (TEXT_OFFSET_X, TEXT_OFFSET_Y-img_height))
-
-
-def show_image(displaysurf, image, text=None):
+def show_image(displaysurf, image):
     image_size = image.get_size()
 
     left = round((RESOLUTION_X - image_size[0]) / 2) + OFFSET_X
@@ -56,10 +33,6 @@ def show_image(displaysurf, image, text=None):
 
     displaysurf.fill(BLACK)
     displaysurf.blit(image, (left, top))
-
-    if not text is None:
-        draw_text(displaysurf, text)
-
     pygame.display.update()
 
 
@@ -69,17 +42,18 @@ def show_random_image_from_s3_cache(displaysurf):
     show_image(displaysurf, image)
 
 
+
 def show_popular_reddit_image(displaysurf, subreddit, auth_file):
     auth = reddit.get_auth(auth_file)
-    urls_and_titles = reddit.get_top_image_urls_and_titles(subreddit, auth, time_period='day')
+    urls = reddit.get_top_image_urls(subreddit, auth, time_period='day')
 
-    if urls_and_titles:
-        (url, title) = urls_and_titles[0]
+    if urls:
+        url = urls[0]
         logging.info(f"fetching {url}")
-        local_file = images.fetch_and_prepare_image(url, rotate=True)
+        local_file = images.fetch_and_prepare_image(url)
         logging.info(f" copied to {local_file}")
         image = pygame.image.load(local_file)
-        show_image(displaysurf, image, title)
+        show_image(displaysurf, image)
 
 
 def choose_and_show_image(displaysurf, auth_file):
