@@ -65,13 +65,11 @@ def gamma_correct(image):
     return pygame.image.fromstring(bytes(image_bytes), image.get_size(), "RGB")
 
 
-def resize_image(image, rotate):
+def resize_image(image):
     original_size = image.get_size()
-
-    if rotate:
-        if original_size[0] < original_size[1]:
-            image = pygame.transform.rotate(image, 90)
-            original_size = image.get_size()
+    if original_size[0] < original_size[1]:
+        image = pygame.transform.rotate(image, 90)
+        original_size = image.get_size()
 
     screen_size = (config["resolution_x"], config["resolution_y"])
 
@@ -84,7 +82,7 @@ def resize_image(image, rotate):
     return pygame.transform.smoothscale(image, new_size)
 
 
-def fetch_and_prepare_image(image_url, rotate=False):
+def fetch_and_prepare_image(image_url):
     image_basename = os.path.basename(image_url)
 
     local_path = cache_directory + "/" + image_basename
@@ -95,7 +93,7 @@ def fetch_and_prepare_image(image_url, rotate=False):
         original_path = fetch_image(image_url)
         image = pygame.image.load(original_path)
         image = gamma_correct(image)
-        image = resize_image(image, rotate)
+        image = resize_image(image)
 
         pygame.image.save(image, local_path)
         os.unlink(original_path)

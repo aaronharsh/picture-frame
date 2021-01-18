@@ -45,7 +45,7 @@ def show_random_image_from_s3_cache(displaysurf):
 
 def show_popular_reddit_image(displaysurf, subreddit, auth_file):
     auth = reddit.get_auth(auth_file)
-    urls = reddit.get_top_image_urls(subreddit, auth, time_period='day')
+    urls = reddit.get_top_image_urls(subreddit, auth)
 
     if urls:
         url = urls[0]
