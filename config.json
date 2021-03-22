@@ -6,5 +6,7 @@
     "resolution_y": 600,
     "offset_x": 20,
     "offset_y": 0,
+    "text_offset_x": 30,
+    "text_offset_y": 570,
     "gamma": 0.75
 }
