@@ -31,7 +31,7 @@ logging.basicConfig(
 
 
 def draw_text(displaysurf, text):
-    font = pygame.font.SysFont(None, 24)
+    font = pygame.font.SysFont(None, 32)
 
     img_outline = font.render(text, True, BLACK)
     img_center = font.render(text, True, WHITE)
