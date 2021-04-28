@@ -8,6 +8,7 @@ import sys
 import pygame
 from pygame.locals import *
 
+import errors
 import images
 import reddit
 
@@ -30,6 +31,11 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S')
 
 
+def report_error(message):
+    logging.error(message)
+    errors.report_error(message)
+
+
 def draw_text(displaysurf, text):
     font = pygame.font.SysFont(None, 32)
 
@@ -48,6 +54,16 @@ def draw_text(displaysurf, text):
     displaysurf.blit(img_center, (TEXT_OFFSET_X, TEXT_OFFSET_Y-img_height))
 
 
+def catch_and_report_errors(category, code):
+    result = None
+    try:
+        result = code()
+    except Exception as e:
+        report_error(f"{category}: {e}")
+
+    return result
+
+
 def show_image(displaysurf, image, text=None):
     image_size = image.get_size()
 
@@ -63,10 +79,19 @@ def show_image(displaysurf, image, text=None):
     pygame.display.update()
 
 
-def show_random_image_from_s3_cache(displaysurf):
-    images.sync_images_from_s3_to_cache()
-    image = images.random_image_from_cache()
+def show_local_image(displaysurf, local_file):
+    image = pygame.image.load(local_file)
     show_image(displaysurf, image)
+
+
+def get_todays_custom_image():
+    try:
+        date_str = datetime.now().strftime("%Y-%m-%d")
+        image_url = config.get('image_base_url') + '/' + date_str + '.jpg'
+        return images.fetch_and_prepare_image(image_url)
+    except Exception as e:
+        report_error(str(e))
+        return None
 
 
 def show_popular_reddit_image(displaysurf, subreddit, auth_file):
@@ -83,8 +108,11 @@ def show_popular_reddit_image(displaysurf, subreddit, auth_file):
 
 
 def choose_and_show_image(displaysurf, auth_file):
-    # show_random_image_from_s3_cache(displaysurf)
-    show_popular_reddit_image(displaysurf, "/r/astronomy+astrophotography", auth_file)
+    todays_custom_filename = catch_and_report_errors("get_todays_customer_image", get_todays_custom_image)
+    if todays_custom_filename:
+        catch_and_report_errors("show_local_image", lambda: show_local_image(displaysurf, todays_custom_filename))
+    else:
+        show_popular_reddit_image(displaysurf, "/r/astronomy+astrophotography", auth_file)
 
 
 def main():
